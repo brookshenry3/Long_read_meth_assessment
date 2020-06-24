@@ -1,0 +1,13 @@
+#PBS -N ngmlr
+#PBS -r n
+#PBS -l mem=15GB,walltime=24:00:00,ncpus=10
+#PBS -m ae
+#PBS -M email
+
+module load ngmlr/0.2.7
+module load samtools/1.9
+
+cd path/to/workingdirectory
+
+ngmlr -t 10 -r path/to/reference/genome/fasta -q path/to/fastq.gz -x ont | samtools sort -T tmp -o output.sorted.bam
+samtools index output.sorted.bam
