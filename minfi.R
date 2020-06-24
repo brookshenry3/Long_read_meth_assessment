@@ -7,30 +7,12 @@ library(GenomicRanges)
 #Packages used to facilitate liftover
 library(rtracklayer)
 
-#Loading in the raw green/red .idat files for the EPIC array from the colo829 data
-rgset <- read.metharray(basenames = '/mnt/lustre/working/genomeinfo/data/20200303_AMGP/204228990124_R06C01_Grn.idat')
+#Loading in the raw green/red .idat files for the EPIC array
+rgset <- read.metharray(basenames = 'Path/to/idat/files')
 
-# #Getting only the methylated/unmethylated signals
-# mset <- preprocessRaw(rgset)
-# 
-# #Now getting beta and m values
-# rset <- ratioConvert(mset, what = 'both', keepCN = TRUE)
-# 
-# #Now just getting a matrix containing the beta values
-# betas <- getBeta(rset)
-# 
-# #Running QC on the mset
-# qc <- getQC(mset)
-# plotQC(qc)
-# densityPlot(mset)
-
-qcReport(rgset, pdf= '/working/lab_nicw/kevinH/projects/methylation_assessment/data/minfi_meth_calls/CO9a_qcreport.pdf')
-
-#Based on the above the data looks pretty good, not sure what QC I need to do
+qcReport(rgset, pdf= 'path/to/output/qcreport.pdf')
 
 ####Preprocessing the data (Illumina method)####
-
-#Might as well try doing the illumina preprocessing
 
 mset.illumina <- preprocessIllumina(rgset, bg.correct = TRUE, normalize = 'controls')
 
@@ -56,12 +38,11 @@ data.gr <- granges(grset.illumina)
 
 #Now to liftover the data from hg19 to hg38
 
-chain <- import.chain('/mnt/lustre/working/lab_nicw/kevinH/projects/methylation_assessment/general_scripts/hg19ToHg38.over.chain')
+chain <- import.chain('path/to/hg19ToHg38.over.chain')
 
 datahg38.gr <- liftOver(data.gr, chain)
 
-#Workflow now includes the EPIC part of 'formatting_data.R' so that script is now redundant
-
+#Converting the data to a dataframe to clean it up
 
 df.epic.meth <- as.data.frame(datahg38.gr)
 df.epic.meth <- df.epic.meth[ ,c(3, 4, 5, 9, 12)]
@@ -78,27 +59,7 @@ epic.meth.gr <- makeGRangesFromDataFrame(df.epic.meth,
 
 
 #Saving all of the data
-#save(betas, file = '/mnt/lustre/working/lab_nicw/kevinH/projects/methylation_assessment/data/minfi_meth_calls/colo829_bl_raw_beta_matrix')
-save(betas.illumina, file = '/mnt/lustre/working/lab_nicw/kevinH/projects/methylation_assessment/data/minfi_meth_calls/CO9a_illumina_beta_matrix')
-save(data.gr, file = '/mnt/lustre/working/lab_nicw/kevinH/projects/methylation_assessment/data/minfi_meth_calls/CO9a_EPIC_meth_hg19')
-save(datahg38.gr, file = '/mnt/lustre/working/lab_nicw/kevinH/projects/methylation_assessment/data/minfi_meth_calls/CO9a_EPIC_meth_hg38')
-save(epic.meth.gr, file = '/mnt/lustre/working/lab_nicw/kevinH/projects/methylation_assessment/data/minfi_meth_calls/CO9a_epic_meth_w_betas_gr')
-
-
-
-#load(file = '/mnt/lustre/working/lab_nicw/kevinH/projects/methylation_assessment/colo_829/colo829_EPIC_data/EPIC_meth_hg19')
-
-#load(file = '/mnt/lustre/working/lab_nicw/kevinH/projects/methylation_assessment/colo_829/colo829_EPIC_data/EPIC_meth_hg38')
-
-
-#hg19 <- as.data.frame(data.gr)
-#hg38 <- as.data.frame(datahg38.gr)
-
-
-
-
-
-
-
-
-
+save(betas.illumina, file = 'path/to/save/data/illumina_beta_matrix')
+save(data.gr, file = 'path/to/save/data/EPIC_meth_hg19')
+save(datahg38.gr, file = 'path/to/save/data/EPIC_meth_hg38')
+save(epic.meth.gr, file = 'path/to/save/data/epic_meth_w_betas_gr')
